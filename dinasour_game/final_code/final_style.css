@@ -1,0 +1,99 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "VT323", monospace;
+}
+#canvas {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid black;
+  width: 500px;
+  height: 400px;
+  position: relative;
+  margin: auto; /* center canvas */
+}
+
+#score {
+  font-size: 24px;
+  text-align: right;
+}
+
+#restart {
+  border: transparent;
+  margin: auto;
+  width: 30px;
+  height: 30px;
+  background: url("../assets/restart.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+.cactus {
+  background-color: #666666;
+  position: absolute;
+  bottom: 0;
+  right: 3px;
+  background: url("../assets/cactus.png");
+}
+
+.player {
+  position: absolute;
+  bottom: 0;
+  left: 30px;
+  background: url("../assets/player.png");
+  background-repeat: no-repeat;
+  z-index: 100;
+}
+
+.player--jump {
+  animation: jump 0.3s linear;
+}
+
+.slide {
+  animation: slide 1.5s linear infinite;
+}
+
+.cactus--outside {
+  opacity: 0;
+}
+
+.cactus--inside {
+  opacity: 1;
+}
+
+.pause {
+  animation-play-state: paused;
+}
+
+.hide {
+  visibility: hidden;
+}
+
+.show {
+  visibility: visible;
+}
+
+/* animation for player jump */
+@keyframes jump {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-80px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* animation for cactus slide */
+@keyframes slide {
+  0% {
+    transform: translateX(3px);
+  }
+  100% {
+    transform: translateX(-800px);
+  }
+}
