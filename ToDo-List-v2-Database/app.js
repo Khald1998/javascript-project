@@ -1,115 +1,138 @@
-//jshint esversion:6
-
-const express = require("express"); // required installed packages
+const express = require("express");
 const bodyParser = require("body-parser");
-const date = require(__dirname + "/date.js"); // this will require the module date.js
-// console.log(date());
+const mongoose = require("mongoose");
+var _ = require("lodash");
+const port = 8080
+const app = express();
 
-const app = express(); // app constant by using express
+app.set("view engine", "ejs");
 
-const items = ["Buy food", "Cook food", "Eat food"]; // a const which is an array admits to push items to it, just not assign it to a brand new array
-const workItems = [];
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static("public"));
 
-app.set("view engine", "ejs"); // tells our app to use EJS as its view engine. Always after declaring "app".
+mongoose.connect('mongodb://127.0.0.1:27017/testdb');
 
-app.use(
-  bodyParser.urlencoded({
-    extended: true,
-  })
-);
-app.use(express.static("public")); // for express to serve up the public folder as a static resource
+const itemsSchema = {
+  name: String,
+};
+const Item = mongoose.model("Item", itemsSchema);
+
+const item1 = new Item({
+  name: "Welcome to your todolist!",
+});
+const item2 = new Item({
+  name: "Hit the + button to add a new item.",
+});
+const item3 = new Item({
+  name: "<-- Hit this to delete an item.",
+});
+
+const defaultItems = [item1, item2, item3];
+
+
+
+const listSchema = {
+  name: String,
+  items: [itemsSchema],
+};
+
+
+const List = mongoose.model("List", listSchema);
 
 app.get("/", function (req, res) {
-  //5th this happens and we render the list again and pass over the now updated array with all of our list items
 
-  const day = date.getDate(); // we call the function in the required module date.js. "date" is the name of the module and "getDate" is the function.
-
-  res.render("list", {
-    // 1st we render the day and the list with the pre-selected items
-    listTitle: day,
-    newListItems: items,
+  Item.find({})
+  .then(foundItems => {
+    if (foundItems.length === 0) {
+      Item.insertMany(defaultItems)
+        .then(() => {
+          console.log("Successfully saved default items to DB.");
+          res.redirect("/");
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    } else {
+      res.render("list", { listTitle: "Today", newListItems: foundItems });
+    }
+  })
+  .catch(err => {
+    console.log(err);
   });
 });
 
+app.get("/:customListName", function (req, res) {
+  const customListName = _.capitalize(req.params.customListName);
+  List.findOne({ name: customListName })
+  .then(foundList => {
+    if (!foundList) {
+      const list = new List({
+        name: customListName,
+        items: defaultItems,
+      });
+      list.save();
+      res.redirect("/" + customListName);
+    } else {
+      res.render("list", {
+        listTitle: foundList.name,
+        newListItems: foundList.items,
+      });      
+    }
+  })
+});
+
 app.post("/", function (req, res) {
-  // receives the post request from the html form
+  const itemName = req.body.newItem;
+  const listName = req.body.list; // list is the name of the button on list.ejs
 
-  const item = req.body.newItem; // search for the value of "newItem", that has to match our input
-  // 4th this catches the post request, get the newItem and save is as item and push it into the items array, and then we redirect to the home route
-  const listTitle = req.body.list;
+  const item = new Item({
+    name: itemName,
+  });
 
-  if (req.body.list === "Work") {
-    workItems.push(item);
-    res.redirect("/work");
+  if (listName === "Today") {
+    // default list
+    item.save(); // mongoose shortcut to "insertOne" or Many
+    res.redirect("/");
   } else {
-    items.push(item);
-    res.redirect("/"); // when a post request is triggered, we'll save the value of the new item in the item variable and will redirect to the home route, where "app.get" and will render the list template passing in both kindOfDay and newList
+    List.findOne({ name: listName })
+    .then(foundList => {
+    foundList.items.push(item);
+    foundList.save();
+    res.redirect("/" + listName);
+    })
   }
-  console.log("item: " + item, "list title: " + listTitle);
 });
 
-app.get("/work", function (req, res) {
-  res.render("list", { listTitle: "Work List", newListItems: workItems });
+app.post("/delete", function (req, res) {
+  const checkedItemId = req.body.checkbox;
+  const listName = req.body.listName;
+
+  if (listName === "Today") {
+
+    Item.findByIdAndDelete(checkedItemId)
+    .then(() => {
+      console.log("Successfully deleted the checked item.");
+      res.redirect("/");
+    })
+  } else { // if it not the default list
+
+    List.findOneAndUpdate({ name: listName }, { $pull: {items: {_id: checkedItemId}} })
+      .then(foundList => {
+        res.redirect("/" + listName);
+      })
+
+
+  }
 });
+
+
 
 app.get("/about", function (req, res) {
   res.render("about");
 });
 
-// var currentDay = today.getDay();
-// var day = "";
 
-// switch (currentDay) {
-//     case 0:
-//         day = "Sunday";
-//         break;
-//     case 1:
-//         day = "Monday";
-//         break;
-//     case 2:
-//         day = "Tuesday";
-//         break;
-//     case 3:
-//         day = "Wednesday";
-//         break;
-//     case 4:
-//         day = "Thursday";
-//         break;
-//     case 5:
-//         day = "Friday";
-//         break;
-//     case 6:
-//         day = "Saturday";
-//         break;
-//     default:
-//         console.log("Error: current day is equal to: " + currentDay);
-// }
 
-//     res.render("list", {
-//         kindOfDay: day
-//     }); // render a file called list and pass that file a variable called kindOfDay whose value is "day"
-// });
-
-// app.get("/", function(req, res){
-
-//     var today = new Date();
-//     var currentDay = today.getDay();
-
-//     if (currentDay === 6 || currentDay=== 0) { // getDay returns the day of the week, 0-Sunday to 6-Saturday
-//         res.write("<h1>Yaaay it's the weekend!</h1>");
-//     } else {
-//         res.write("<p>It is not the weekend</p>");
-//         res.write("<h1>Boo! I have to work!</h1>");
-//         res.send();
-//     }
-// });
-
-app.listen(3000, function () {
-  console.log("Server is running on port 3000");
+app.listen(port, function () {
+  console.log("Server has started successfully.");
 });
-
-// <!-- <% if (kindOfDay === "Saturday" || kindOfDay === "Sunday") { %>
-//     <h1 style="color: purple"><%= kindOfDay %> ToDo list</h1>
-//     <% } else { %>
-//     <h1 style="color: blue"><%= kindOfDay %> ToDo list</h1>
-//     <% } %> -->
