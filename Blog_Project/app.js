@@ -1,5 +1,3 @@
-//jshint esversion:6
-
 const express = require("express"); // import modules
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
@@ -17,10 +15,8 @@ app.set("view engine", "ejs"); // set view engine using ejs
 app.use(bodyParser.urlencoded({ extended: true })); // use body parser
 app.use(express.static("public")); // tell express that our static files are held inside the public folder
 
-mongoose.connect("mongodb://localhost:27017/blogDB", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect("mongodb://127.0.0.1:27017/blogDB");
+
 
 const postSchema = {
   title: String,
@@ -31,29 +27,14 @@ const Post = mongoose.model("Post", postSchema);
 
 // let posts = [];
 
-// app.get("/", function (req, res) {
-//   Post.find({}, function (err, posts) {
-//     res.render("home", {
-//       // the page we want to render needs to be something .ejs and be inside a folder called views in the root of our main project in the same hierarchical level as app.js
-//       startingContent: homeStartingContent,
-//       // console.log(posts);
-//       posts: posts,
-//     });
-//   });
-// });
 app.get("/", function (req, res) {
-  const temp = Post.find({})
-   console.log(temp)
-    // .then(posts => {
-    //   res.render("home", {
-    //     startingContent: homeStartingContent,
-    //     posts: posts,
-    //   });
-    // })
-    // .catch(err => {
-    //   console.log(err);
-    //   res.status(500).send("Error retrieving posts");
-    // });
+  Post.find({})
+  .then(posts => {
+    res.render("home", {
+      startingContent: homeStartingContent,
+      posts: posts,
+    });
+  })
 });
 
 app.get("/compose", function (req, res) {
@@ -65,40 +46,32 @@ app.post("/compose", function (req, res) {
     title: req.body.postTitle,
     content: req.body.postBody,
   });
-
-   post.save(function(err){
-   if (!err){
-     res.redirect("/"); // this will take us to app.get("/"...
-   }
- });
+  
+  post.save()
+    .then(() => {
+      res.redirect("/"); // this will take us to app.get("/"...
+    })
+    .catch((err) => {
+      console.error(err);
+      // Handle error appropriately
+    });
+  
 });
 
 app.get("/posts/:postId", function (req, res) {
   const requestedPostId = req.params.postId;
-  // const requestedTitle = _.lowerCase([req.params.postName]);
 
-  Post.findOne({ _id: requestedPostId }, function (err, post) {
-    res.render("post", {
-      title: post.title,
-      content: post.content
-    });
-  });
-
-  // posts.forEach(function (post) {
-  //   const storedTitle = _.lowerCase([post.title]);
-  //   console.log(storedTitle);
-
-  //   if (storedTitle === requestedTitle) {
-  //     res.render("post", {
-  //       title: post.title,
-  //       content: post.content,
-  //     });
-  //     console.log("It's a match!");
-  //   } else {
-  //     console.log("Not a match :(");
-  //   }
-  // });
+  Post.findOne({ _id: requestedPostId })
+    .then(post => {
+      res.render("post", {
+        title: post.title,
+        content: post.content
+      });
+    })
+ 
 });
+
+  
 
 app.get("/about", function (req, res) {
   res.render("about", { aboutContent: aboutContent });
@@ -107,7 +80,6 @@ app.get("/about", function (req, res) {
 app.get("/contact", function (req, res) {
   res.render("contact", { contactContent: contactContent });
 });
-
 app.listen(8080, function () {
   console.log("Server started on port 8080");
 });
