@@ -78,7 +78,17 @@ app.delete("/delete", function (req, res) {
 
 
 app.put("/update", function (req, res) {
-  
+  const userInput = req.body.name;
+  Person.exists({ name: userInput })
+  .then ((person) =>{
+    if (!person) {
+      res.send(`There is no ${req.body.name}`);
+    }else{
+      Person.updateOne({name: userInput}, { age: req.body.age, email: req.body.email }).then(() => {
+        res.send(`${userInput} was updated!`);
+      });
+    }
+  });
 });
 
 app.listen(port, function () {
