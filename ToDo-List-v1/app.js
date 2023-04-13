@@ -1,4 +1,3 @@
-//jshint esversion:6
 
 const express = require("express"); // required installed packages
 const bodyParser = require("body-parser");
@@ -56,60 +55,8 @@ app.get("/about", function (req, res) {
   res.render("about");
 });
 
-// var currentDay = today.getDay();
-// var day = "";
 
-// switch (currentDay) {
-//     case 0:
-//         day = "Sunday";
-//         break;
-//     case 1:
-//         day = "Monday";
-//         break;
-//     case 2:
-//         day = "Tuesday";
-//         break;
-//     case 3:
-//         day = "Wednesday";
-//         break;
-//     case 4:
-//         day = "Thursday";
-//         break;
-//     case 5:
-//         day = "Friday";
-//         break;
-//     case 6:
-//         day = "Saturday";
-//         break;
-//     default:
-//         console.log("Error: current day is equal to: " + currentDay);
-// }
-
-//     res.render("list", {
-//         kindOfDay: day
-//     }); // render a file called list and pass that file a variable called kindOfDay whose value is "day"
-// });
-
-// app.get("/", function(req, res){
-
-//     var today = new Date();
-//     var currentDay = today.getDay();
-
-//     if (currentDay === 6 || currentDay=== 0) { // getDay returns the day of the week, 0-Sunday to 6-Saturday
-//         res.write("<h1>Yaaay it's the weekend!</h1>");
-//     } else {
-//         res.write("<p>It is not the weekend</p>");
-//         res.write("<h1>Boo! I have to work!</h1>");
-//         res.send();
-//     }
-// });
-
-app.listen(3000, function () {
-  console.log("Server is running on port 3000");
+app.listen(8080, function () {
+  console.log("Server is running on port 8080");
 });
 
-// <!-- <% if (kindOfDay === "Saturday" || kindOfDay === "Sunday") { %>
-//     <h1 style="color: purple"><%= kindOfDay %> ToDo list</h1>
-//     <% } else { %>
-//     <h1 style="color: blue"><%= kindOfDay %> ToDo list</h1>
-//     <% } %> -->
