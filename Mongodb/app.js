@@ -19,7 +19,29 @@ const personSchema = new mongoose.Schema({
 
 // Create a model from the schema
 const Person = mongoose.model('Person', personSchema);
+app.get("/findAll", function (req, res) {
+    Person.find({})
+    .then((people) => {
+      if (people.length === 0) {
+        res.status(404).send("No Person Found");
+      } else {
+        const results = people.map((person) => {
+          return {
+            _id: person._id,
+            name: person.name,
+            age: person.age,
+            email: person.email,
+          };
+        });
+        res.send(results);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send("Internal Server Error");
+    });
 
+});
 
 app.get("/find", function (req, res) {
   const userInput = req.body.name;
@@ -30,6 +52,7 @@ app.get("/find", function (req, res) {
         res.status(404).send("Person Not Found");
       } else {
         const result = {
+          _id:person._id,
           name: userInput,
           age: person.age,
           email: person.email,
