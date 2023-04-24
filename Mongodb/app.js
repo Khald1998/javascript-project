@@ -3,22 +3,25 @@ const express = require("express"); // required installed packages
 const bodyParser = require("body-parser");
 
 const port = 8080
+// const url = 'mongodb://127.0.0.1:27017/testdb'
+const url = 'mongodb+srv://myapp:myapp123123@tcoc.ii33cir.mongodb.net/xxffing'
 
 const app = express(); // app constant by using express
 app.use(bodyParser.json());
 
-mongoose.connect('mongodb://127.0.0.1:27017/testdb');
+mongoose.connect(url);
 
 
 // Define a schema for your collection
 const personSchema = new mongoose.Schema({
-  name: String,
-  age: Number,
-  email: String
+  name: String
 });
 
 // Create a model from the schema
 const Person = mongoose.model('Person', personSchema);
+app.get("/", function (req, res) {
+  res.send("xffing");
+});
 app.get("/findAll", function (req, res) {
     Person.find({})
     .then((people) => {
@@ -28,9 +31,7 @@ app.get("/findAll", function (req, res) {
         const results = people.map((person) => {
           return {
             _id: person._id,
-            name: person.name,
-            age: person.age,
-            email: person.email,
+            name: person.name
           };
         });
         res.send(results);
@@ -53,9 +54,7 @@ app.get("/find", function (req, res) {
       } else {
         const result = {
           _id:person._id,
-          name: userInput,
-          age: person.age,
-          email: person.email,
+          name: userInput
         };
         res.send(result);
       }
@@ -72,9 +71,7 @@ app.post("/add", function (req, res) {
   .then ((person) =>{
     if (!person) {
       const newPerson = new Person({
-        name: req.body.name,
-        age: req.body.age,
-        email: req.body.email
+        name: req.body.name
       });
       // Create a new document and save it to the collection
       newPerson.save()
