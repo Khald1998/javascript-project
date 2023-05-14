@@ -24,16 +24,16 @@ let officersIds = [];
 officers.forEach(function (officer) {
   officersIds.push(officer.id);
 });
-console.log(officersIds);
+console.log('officersIds \n' + officersIds);
 
 var officersIds_2 = officers.map(function (officer) {
   return officer.id;
 });
-console.log(officersIds_2);
+console.log('officersIds_2: ',officersIds_2);
 
 const officersIds_3 = officers.map((officer) => officer.id);
-console.log(officersIds_3);
-
+console.log('officersIds_3: ',officersIds_3);
+console.log('officersIds_3[0]: ',officersIds_3[0]);
 // Reduce
 // Get total number of years of experience
 var pilots = [

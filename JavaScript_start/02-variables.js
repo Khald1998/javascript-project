@@ -30,10 +30,10 @@ function scope() {
   var a = 5; // a in the function scope
   if (a < 6) {
     let b = 6;
-    console.log(a);
-    console.log(b);
+    console.log('a = '+a);
+    console.log(`b = ${b} (inside the if bloack)`);
   }
-  console.log(b); // b in the global scope (see line 9)
+  console.log(`b = ${b} (outside the if bloack)`); // b in the global scope (see line 9)
 }
 scope();
-console.log(a); // a in the global scope
+console.log('a = '+a); // a in the global scope
